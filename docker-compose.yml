@@ -1,0 +1,48 @@
+version: '3'
+services:
+  db:
+    image: mysql
+    expose: 
+      - "3306"
+    volumes:
+      - ./mysql:/var/lib/mysql:rw
+    environment:
+      - MYSQL_DATABASE=demodb
+      - MYSQL_ROOT_PASSWORD=123456
+
+  redis:
+    image: redis:3.2.1
+    hostname: redis
+    ports:
+      - "6379:6379"
+
+  django:
+    hostname: django
+    build: 
+      context: ./django_docker
+      dockerfile: Dockerfile
+    volumes:
+      - ./django_docker:/usr/src/app
+      - /tmp/logs:/tmp
+    command: bash start.sh
+    ports:
+       - "8080:8080"
+    links:
+      - redis:redisdb
+    depends_on:
+      - redis
+      - db
+    restart: always
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./django_docker/static:/usr/share/nginx/html/static:ro
+      - ./django_docker/media:/usr/share/nginx/html/media:ro
+    links:
+      - django
+    depends_on:
+      - django
+    restart: always
