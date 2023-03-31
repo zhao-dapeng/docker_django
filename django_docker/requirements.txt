@@ -1,7 +1,7 @@
 Django==2.2.5
 pytz==2019.2
 sqlparse==0.3.0
-redis==3.2.1
+redis==4.4.4
 PyMySQL==0.9.3
 
 
